@@ -1,64 +1,228 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# PHP LOGGING
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## POINT UTAMA
 
-## About Laravel
+### 1. Logging Channel
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+1. Default channel milik `Laravel`.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   Single, Mengirim data _log_ ke single file.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+    ```PHP
+    'single' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/laravel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
+    ```
 
-## Learning Laravel
+-   Daily, mengirim data _log_ ke single file, namun setiap hari akan di _rotate_ filenya.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+    ```PHP
+     'daily' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/laravel.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => 14,
+        ],
+    ```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   Slack, mengirim data _log_ ke `slack chat`.
 
-## Laravel Sponsors
+    ```PHP
+    'slack' => [
+            'driver' => 'slack',
+            'url' => env('LOG_SLACK_WEBHOOK_URL'),
+            'username' => 'Laravel Log',
+            'emoji' => ':boom:',
+            'level' => env('LOG_LEVEL', 'critical'),
+        ],
+    ```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+-   Sylog, mengirim data _log_ ke `sylog`.
 
-### Premium Partners
+    ```PHP
+     'syslog' => [
+            'driver' => 'syslog',
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
+    ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+-   Null, tidak mengirim data _log_ kemanapun.
 
-## Contributing
+    ```PHP
+    'null' => [
+            'driver' => 'monolog',
+            'handler' => NullHandler::class,
+        ],
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+-   Stack, mengirim data _log_ ke beberapa channel sekaligus, default nya hanya mengirim ke channel.
 
-## Code of Conduct
+    ```PHP
+    'stack' => [
+            'driver' => 'stack',
+            'channels' => ['single'],
+            'ignore_exceptions' => false,
+        ],
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+-   Secara default, `laravel` akan menggunakan channel `slack`.
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 2. Log Facade
 
-## License
+-   Kita bisa menggunakan `Log facade` untuk melakukan logging di `laravel`.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+-   Kode `log facade`
+
+    ```php
+    class LoggingTest extends TestCase
+    {
+        public function testLogging()
+        {
+            Log::info("Hello Info");
+            Log::warning("Hello Warning");
+            Log::error("Hello Error");
+            Log::critical("Hello Critical");
+
+            self::assertTrue(true);
+        }
+    }
+    ```
+
+-   Hasil dari log bisa di lihat di `storage/logs/laravel.log`.
+
+---
+
+### 3. Multiple Log Channel
+
+-   Untuk membuat _log_ ke `slack`, kita perlu membuat URL terlebih dahulu. Di directory `config/logging.php`
+
+    ```PHP
+     'stack' => [
+            'driver' => 'stack',
+            'channels' => ['single', 'slack', 'stderr'], //menambahkan channel
+            'ignore_exceptions' => false,
+        ],
+
+         'slack' => [
+            'driver' => 'slack',
+            'url' => env('LOG_SLACK_WEBHOOK_URL'),
+            'username' => 'Laravel Log',
+            'emoji' => ':boom:',
+            'level' => env('LOG_LEVEL_SLACK', 'error'), // menambahkan level error
+        ],
+    ```
+
+    ```PHP
+    LOG_CHANNEL=stack
+    LOG_DEPRECATIONS_CHANNEL=null
+    LOG_LEVEL=debug
+    LOG_LEVEL_SLACK=error
+    LOG_SLACK_WEBHOOK_URL=https://hooks.slack.com/services/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
+    ```
+
+---
+
+### 4. Context
+
+-   `Log facade` memiliki parameter kedua setelah message yang bisa diisi dengan data `context`. Mirip seperti PHP logging.
+
+    ```PHP
+     public function testContext()
+    {
+        Log::info("Hello Info", ["user" => "agung"]);
+        Log::info("Hello Info", ["user" => "agung"]);
+        Log::info("Hello Info", ["user" => "agung"]);
+
+        self::assertTrue(true);
+    }
+    ```
+
+-   Atau kita bisa menggunakan _function_ `withContext()`, untuk secara otomatis ke kode selanjutnya.
+
+-   Kode `withContext`
+
+    ```PHP
+
+    public function testWithContext()
+    {
+        Log::withContext(["user" => "vior"]);
+
+        Log::info("Hello Info");
+        Log::info("Hello Info");
+        Log::info("Hello Info");
+
+        self::assertTrue(true);
+    }
+    ```
+
+---
+
+### 5. Selected Channel
+
+-   Kode selected channel
+
+    ```PHP
+    public function testChannel()
+    {
+        $slackLogger = Log::channel("slack");
+        $slackLogger->error("Hello Slack"); // send to slack channel
+
+        Log::info("Hello Laravel"); // send to default channel
+        self::assertTrue(true);
+    }
+    ```
+
+---
+
+### 6. Handler
+
+-   Kode Handler
+
+    ```PHP
+      public function testFileHandler()
+    {
+        $fileLogger = Log::channel("file");
+        $fileLogger->info("Hello File Handler");
+        $fileLogger->warning("Hello File Handler");
+        $fileLogger->error("Hello File Handler");
+        $fileLogger->critical("Hello File Handler");
+
+        self::assertTrue(true);
+    }
+    ```
+
+---
+
+### 7. Formatter
+
+-   Di `laravel` kita bisa menggunakan `config formatter` dengan berisi _class_ `formatter`.
+
+-   Kode konfigurasi
+
+    ```PHP
+    'file' => [
+            'driver' => 'monolog',
+            'level' => env('LOG_LEVEL', 'debug'),
+            'handler' => StreamHandler::class,
+            'formatter' => \Monolog\Formatter\JsonFormatter::class,
+            'with' => [
+                'stream' => storage_path("logs/application.log"),
+            ],
+        ],
+    ```
+
+---
+
+## PERTANYAAN & CATATAN TAMBAHAN
+
+-  Logging dalam Laravel adalah aspek penting dalam pengembangan aplikasi yang memungkinkan Anda untuk merekam informasi yang berharga seperti pesan kesalahan, aktivitas pengguna, dan peristiwa penting lainnya. Dengan menggunakan fasilitas logging yang disediakan oleh Laravel, seperti Monolog, Anda dapat dengan mudah mengonfigurasi tingkat log, channel, dan format pesan sesuai kebutuhan aplikasi Anda, sehingga memudahkan pemantauan, pemecahan masalah, dan meningkatkan keamanan serta kinerja aplikasi secara keseluruhan.
+
+---
+
+### KESIMPULAN
+
+-
