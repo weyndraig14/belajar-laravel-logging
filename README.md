@@ -219,10 +219,10 @@
 
 ## PERTANYAAN & CATATAN TAMBAHAN
 
--  Logging dalam Laravel adalah aspek penting dalam pengembangan aplikasi yang memungkinkan Anda untuk merekam informasi yang berharga seperti pesan kesalahan, aktivitas pengguna, dan peristiwa penting lainnya. Dengan menggunakan fasilitas logging yang disediakan oleh Laravel, seperti Monolog, Anda dapat dengan mudah mengonfigurasi tingkat log, channel, dan format pesan sesuai kebutuhan aplikasi Anda, sehingga memudahkan pemantauan, pemecahan masalah, dan meningkatkan keamanan serta kinerja aplikasi secara keseluruhan.
+-  
 
 ---
 
 ### KESIMPULAN
 
--
+- Logging dalam Laravel adalah aspek penting dalam pengembangan aplikasi yang memungkinkan Anda untuk merekam informasi yang berharga seperti pesan kesalahan, aktivitas pengguna, dan peristiwa penting lainnya. Dengan menggunakan fasilitas logging yang disediakan oleh Laravel, seperti Monolog, Anda dapat dengan mudah mengonfigurasi tingkat log, channel, dan format pesan sesuai kebutuhan aplikasi Anda, sehingga memudahkan pemantauan, pemecahan masalah, dan meningkatkan keamanan serta kinerja aplikasi secara keseluruhan.
